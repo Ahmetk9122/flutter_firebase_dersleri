@@ -97,6 +97,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   googleIleGiris();
                 },
                 child: Text("Google ile Giriş")),
+            ElevatedButton(
+                onPressed: () {
+                  loginWithPhoneNumber();
+                },
+                child: Text("Tel No Giriş")),
           ],
         ),
       ),
@@ -130,12 +135,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void signOutUser() async {
-    var _user =await GoogleSignIn().currentUser;
+    var _user = await GoogleSignIn().currentUser;
     //Google(gmail) ile çıkış yaperken.
-    if(_user!=null)
-   {
+    if (_user != null) {
       await GoogleSignIn().signOut();
-   }
+    }
     //Firebase kısmından çıkış yaparken.
     await auth.signOut();
   }
@@ -204,5 +208,30 @@ class _MyHomePageState extends State<MyHomePage> {
 
     // Once signed in, return the UserCredential
     await FirebaseAuth.instance.signInWithCredential(credential);
+  }
+
+  Future<void> loginWithPhoneNumber() async {
+    await FirebaseAuth.instance.verifyPhoneNumber(
+      phoneNumber: '+905386062774',
+      verificationCompleted: (PhoneAuthCredential credential) async {
+        print("verification complated tetiklendi Telefonla girildi");
+        print(credential.toString());
+        await auth.signInWithCredential(credential);
+      },
+      verificationFailed: (FirebaseAuthException e) {
+        print(e.toString());
+      },
+      codeSent: (String verificationId, int? resendToken) async {
+        String _smsCode = "912238";
+        print("Code sent tetiklendi");
+        var _credential = PhoneAuthProvider.credential(
+            verificationId: verificationId, smsCode: _smsCode);
+
+        await auth.signInWithCredential(_credential);
+      },
+      codeAutoRetrievalTimeout: (String verificationId) {
+        print("Code auto retrival tetiklendi");
+      },
+    );
   }
 }
