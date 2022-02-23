@@ -35,7 +35,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   late FirebaseAuth auth;
   final String _email = "ahmet.karabudakk.9122@gmail.com";
-  final String _password = "password12345";
+  final String _password = "password1234";
   @override
   void initState() {
     super.initState();
