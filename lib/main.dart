@@ -1,9 +1,12 @@
+import 'dart:math';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_firebase_dersleri/firebase_options.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,8 +37,8 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late FirebaseAuth auth;
-  final String _email = "ahmet.karabudakk.9122@gmail.com";
-  final String _password = "password1234";
+  final String _email = "ahmet.karabudakk@gmail.com";
+  final String _password = "yenisifre";
   @override
   void initState() {
     super.initState();
@@ -79,6 +82,21 @@ class _MyHomePageState extends State<MyHomePage> {
                   deleteUSer();
                 },
                 child: Text("Kullanıcıyı Sil!")),
+            ElevatedButton(
+                onPressed: () {
+                  changePassword();
+                },
+                child: Text("Parola Değiştir")),
+            ElevatedButton(
+                onPressed: () {
+                  changeEmail();
+                },
+                child: Text("Email Değiştir")),
+            ElevatedButton(
+                onPressed: () {
+                  googleIleGiris();
+                },
+                child: Text("Google ile Giriş")),
           ],
         ),
       ),
@@ -112,16 +130,79 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void signOutUser() async {
+    var _user =await GoogleSignIn().currentUser;
+    //Google(gmail) ile çıkış yaperken.
+    if(_user!=null)
+   {
+      await GoogleSignIn().signOut();
+   }
+    //Firebase kısmından çıkış yaparken.
     await auth.signOut();
   }
 
   Future<void> deleteUSer() async {
     if (auth.currentUser != null) {
       await auth.currentUser!.delete();
-    }
-    else
-    {
+    } else {
       print("Kullamıcı oturum açmadığı için silinemez");
     }
+  }
+
+  Future<void> changePassword() async {
+    try {
+      await auth.currentUser!.updatePassword("yenisifre");
+      await auth.signOut();
+    } on FirebaseAuthException catch (e) {
+      if (e.code == "requires-recent-login") {
+        print("reauthenticate olacak");
+        var credential =
+            EmailAuthProvider.credential(email: _email, password: _password);
+        await auth.currentUser!.reauthenticateWithCredential(credential);
+
+        await auth.currentUser!.updatePassword("yenisifre");
+        await auth.signOut();
+        debugPrint("şifre güncellendi");
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  Future<void> changeEmail() async {
+    try {
+      await auth.currentUser!.updateEmail("ahmet.karabudak@gmail.com");
+      await auth.signOut();
+    } on FirebaseAuthException catch (e) {
+      if (e.code == "requires-recent-login") {
+        print("reauthenticate olacak");
+        var credential =
+            EmailAuthProvider.credential(email: _email, password: _password);
+        await auth.currentUser!.reauthenticateWithCredential(credential);
+
+        await auth.currentUser!.updateEmail("ahmet.karabudak@gmail.com");
+        await auth.signOut();
+        debugPrint("email güncellendi");
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  void googleIleGiris() async {
+    // Trigger the authentication flow
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication? googleAuth =
+        await googleUser?.authentication;
+
+    // Create a new credential
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
+
+    // Once signed in, return the UserCredential
+    await FirebaseAuth.instance.signInWithCredential(credential);
   }
 }
