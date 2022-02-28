@@ -212,7 +212,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> loginWithPhoneNumber() async {
     await FirebaseAuth.instance.verifyPhoneNumber(
-      phoneNumber: '+905386062774',
+      phoneNumber: '+905385555555',
       verificationCompleted: (PhoneAuthCredential credential) async {
         print("verification complated tetiklendi Telefonla girildi");
         print(credential.toString());
