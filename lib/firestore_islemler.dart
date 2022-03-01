@@ -36,6 +36,11 @@ class FirestoreIslemleri extends StatelessWidget {
                   veriSil();
                 },
                 child: Text("Veri Sil")),
+             ElevatedButton(
+                onPressed: () {
+                  verileriOku();
+                },
+                child: Text("Verileri Oku")),
           ],
         ),
       ),
@@ -88,5 +93,21 @@ class FirestoreIslemleri extends StatelessWidget {
         "araba":FieldValue.delete(),
       }
     );
+  }
+
+  Future<void> verileriOku() async {
+    var _usersDocument = await _firestore.collection("users").get();
+    debugPrint(_usersDocument.size.toString());
+    debugPrint(_usersDocument.docs.length.toString());
+    for(var eleman in _usersDocument.docs)
+    {
+      print("Döküman id ${eleman.id}");
+
+      Map userMap = eleman.data();
+      print(userMap["isim"]);
+    }
+     var _emreDoc =await _firestore.doc("users/VRlWFZVsZPJkKlTPRSMA").get();
+     print(_emreDoc.data().toString());
+     print(_emreDoc.data()!["adres"]["ilce"]);
   }
 }
