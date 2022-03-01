@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_firebase_dersleri/firebase_options.dart';
+import 'package:flutter_firebase_dersleri/firestore_islemler.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 void main() async {
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Material App',
-      home: MyHomePage(),
+      home: FirestoreIslemleri(),
     );
   }
 }
