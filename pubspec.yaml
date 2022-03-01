@@ -38,10 +38,14 @@ dependencies:
   firebase_auth: ^3.3.7
   google_sign_in: ^5.2.4
   google_fonts: ^2.3.0
+  cloud_firestore: ^3.1.9
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+dependency_overrides:
+  firebase_messaging_platform_interface: 3.1.6
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
