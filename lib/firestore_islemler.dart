@@ -183,5 +183,23 @@ class FirestoreIslemleri extends StatelessWidget {
     await _batch.commit();
   }
 
-  void transactionKavrami() { }
+  void transactionKavrami() {
+    _firestore.runTransaction((transaction) async {
+      //Emrenin bakiyesini öğren
+      //emreden 100 lira düş
+      //hasana 100 lira ekle
+
+      DocumentReference<Map<String, dynamic>> emreRef = _firestore.doc("users/6QCpuQ7VxShvAiMz2AU3");
+      DocumentReference<Map<String, dynamic>> ahmetRef = _firestore.doc("users/VRlWFZVsZPJkKlTPRSMA");
+
+      var emreSnapshot =await  transaction.get(emreRef);
+      var _emreBakiye =emreSnapshot.data()!['para'] ;
+      if(_emreBakiye>100)
+      { 
+        var _yeniBakiye = emreSnapshot.data()!["para"]-100;
+        transaction.update(emreRef,{"para":_yeniBakiye});
+        transaction.update(ahmetRef,{"para":FieldValue.increment(100)});
+      }
+    });
+   }
 }
