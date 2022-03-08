@@ -64,6 +64,11 @@ class FirestoreIslemleri extends StatelessWidget {
                   transactionKavrami();
                 },
                 child: Text("Transaction Kavrami")),
+            ElevatedButton(
+                onPressed: () {
+                  queryingData();
+                },
+                child: Text("querying Data")),
           ],
         ),
       ),
@@ -202,4 +207,28 @@ class FirestoreIslemleri extends StatelessWidget {
       }
     });
    }
+
+  Future<void> queryingData() async {
+    //istediği kadar değer gelsin sen bana ilkini ver dediğimizde limit operatörünü kullanırız.
+    //var _userRef =_firestore.collection("users").limit(1);
+    var _userRef =_firestore.collection("users");
+    //var _sonuc = await _userRef.where("yas",whereIn: [30,40]).get();
+    var _sonuc = await _userRef.where("Renkler",arrayContains: "mavi").get();
+   /* for(var user in _sonuc.docs)
+    {
+      print(user.data().toString());
+    }*/
+    //sıralama olayı bu şekilde yapılmaktadır descending özelliği true olursa sıralamanın büyükten küçüğe  şekilde yapılacağını gösterir.
+    /*var _sirala = await _userRef.orderBy("yas",descending: false).get();
+     for(var user in _sirala.docs)
+    {
+      print(user.data().toString());
+    }*/
+
+    var _stringSearch = await _userRef.orderBy("email").startAt(["ahmet"]).endAt(["ahmet"+"\uf8ff"]).get();
+     for(var user in _stringSearch.docs)
+    {
+      print(user.data().toString());
+    }
+  }
 }
