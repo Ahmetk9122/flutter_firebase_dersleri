@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class FirestoreIslemleri extends StatelessWidget {
   FirestoreIslemleri({Key? key}) : super(key: key);
@@ -69,6 +72,11 @@ class FirestoreIslemleri extends StatelessWidget {
                   queryingData();
                 },
                 child: Text("querying Data")),
+            ElevatedButton(
+                onPressed: () {
+                  kameraGaleriImageUpload();
+                },
+                child: Text("Kamera Galeri Image Upload")),
           ],
         ),
       ),
@@ -194,27 +202,28 @@ class FirestoreIslemleri extends StatelessWidget {
       //emreden 100 lira düş
       //hasana 100 lira ekle
 
-      DocumentReference<Map<String, dynamic>> emreRef = _firestore.doc("users/6QCpuQ7VxShvAiMz2AU3");
-      DocumentReference<Map<String, dynamic>> ahmetRef = _firestore.doc("users/VRlWFZVsZPJkKlTPRSMA");
+      DocumentReference<Map<String, dynamic>> emreRef =
+          _firestore.doc("users/6QCpuQ7VxShvAiMz2AU3");
+      DocumentReference<Map<String, dynamic>> ahmetRef =
+          _firestore.doc("users/VRlWFZVsZPJkKlTPRSMA");
 
-      var emreSnapshot =await  transaction.get(emreRef);
-      var _emreBakiye =emreSnapshot.data()!['para'] ;
-      if(_emreBakiye>100)
-      { 
-        var _yeniBakiye = emreSnapshot.data()!["para"]-100;
-        transaction.update(emreRef,{"para":_yeniBakiye});
-        transaction.update(ahmetRef,{"para":FieldValue.increment(100)});
+      var emreSnapshot = await transaction.get(emreRef);
+      var _emreBakiye = emreSnapshot.data()!['para'];
+      if (_emreBakiye > 100) {
+        var _yeniBakiye = emreSnapshot.data()!["para"] - 100;
+        transaction.update(emreRef, {"para": _yeniBakiye});
+        transaction.update(ahmetRef, {"para": FieldValue.increment(100)});
       }
     });
-   }
+  }
 
   Future<void> queryingData() async {
     //istediği kadar değer gelsin sen bana ilkini ver dediğimizde limit operatörünü kullanırız.
     //var _userRef =_firestore.collection("users").limit(1);
-    var _userRef =_firestore.collection("users");
+    var _userRef = _firestore.collection("users");
     //var _sonuc = await _userRef.where("yas",whereIn: [30,40]).get();
-    var _sonuc = await _userRef.where("Renkler",arrayContains: "mavi").get();
-   /* for(var user in _sonuc.docs)
+    var _sonuc = await _userRef.where("Renkler", arrayContains: "mavi").get();
+    /* for(var user in _sonuc.docs)
     {
       print(user.data().toString());
     }*/
@@ -225,10 +234,26 @@ class FirestoreIslemleri extends StatelessWidget {
       print(user.data().toString());
     }*/
 
-    var _stringSearch = await _userRef.orderBy("email").startAt(["ahmet"]).endAt(["ahmet"+"\uf8ff"]).get();
-     for(var user in _stringSearch.docs)
-    {
+    var _stringSearch = await _userRef
+        .orderBy("email")
+        .startAt(["ahmet"]).endAt(["ahmet" + "\uf8ff"]).get();
+    for (var user in _stringSearch.docs) {
       print(user.data().toString());
     }
+  }
+
+  Future<void> kameraGaleriImageUpload() async {
+    final ImagePicker _picker = ImagePicker();
+
+    XFile? _file = await _picker.pickImage(source: ImageSource.gallery);
+    var _profileRef = FirebaseStorage.instance.ref("users/profil_resimleri");
+    var _task =_profileRef.putFile(File(_file!.path));
+    _task.whenComplete(() async {
+      var _url = await _profileRef.getDownloadURL();
+      _firestore.doc("users/KxcNVExo8sE8pe7c8jSE").set({
+        "profile_pic":_url.toString()
+      },SetOptions(merge:true));
+      print(_url);
+    });
   }
 }
